@@ -29,48 +29,59 @@ const uploadFile = async (files) => {
 }
 module.exports = { uploadFile }
 
-const post = async function(req,res){
+const post = async function (req, res) {
     try {
         let data = req.body
         let files = req.files
-        if(files&&files.length>0){
+        if (files && files.length > 0) {
             let uploadFileUrl = await uploadFile(files[0])
             data.postImg = uploadFileUrl
         }
-        else{
-            return res.status(400).send({msg:"no files found"})
+        else {
+            return res.status(400).send({ msg: "no files found" })
         }
         let createPost = await postModel.create(data)
-        return res.status(201).send({status:true,data:createPost})
+        return res.status(201).send({ status: true, data: createPost })
     } catch (error) {
-        return res.status(500).send({status:false,msg:error.message})
+        return res.status(500).send({ status: false, msg: error.message })
     }
 }
 
-const updatePost = async function(req,res){
+const getPost = async function(req,res){
+    try {
+        let post = await postModel.find()
+        if (post.length==0) return res.status(400).send({ status: false, msg: "Posts not found" })
+        return res.status(200).send({ status: true, data: post })
+    } catch (error) {
+        return res.status(500).send({ status: false, msg: error.message })
+    }
+}
+
+const updatePost = async function (req, res) {
     try {
         let data = req.body
         let files = req.files
-        if(files&&files.length>0){
+        if (files && files.length > 0) {
             let uploadFileUrl = await uploadFile(files[0])
             data.postImg = uploadFileUrl
         }
-        let updatePost = await postModel.findByIdAndUpdate(data.postId,data,{new:true})
-        if(!updatePost) return res.status(404).send({status:false,msg:"Post not found for updation"})
-        return res.status(201).send({status:true,data:updatePost})
+        let updatePost = await postModel.findByIdAndUpdate(data.postId, data, { new: true })
+        if (!updatePost) return res.status(400).send({ status: false, msg: "Post not found for updation" })
+        return res.status(201).send({ status: true, data: updatePost })
     } catch (error) {
-        return res.status(500).send({status:false,msg:error.message})
+        return res.status(500).send({ status: false, msg: error.message })
     }
 }
 
-const deletePost = async function(req,res){
+const deletePost = async function (req, res) {
     try {
         let data = req.body
-        let deletePost = await postModel.findOneAndUpdate({_id:data.postId,isDeleted:false},{isDeleted:true},{new:true})
-        if(!deletePost) return res.status(404).send({status:false,msg:"Post not found for Deletion"})
-        return res.status(201).send({status:true,msg:"Post Deleted Successfully"})
+        if(!data.postId) return res.status(400).send({status:false,msg:"postId is required"})
+        let deletePost = await postModel.findOneAndUpdate({ _id: data.postId, isDeleted: false }, { isDeleted: true }, { new: true })
+        if (!deletePost) return res.status(400).send({ status: false, msg: "Post not found for Deletion" })
+        return res.status(201).send({ status: true, msg: "Post Deleted Successfully" })
     } catch (error) {
-        return res.status(500).send({status:false,msg:error.message})
+        return res.status(500).send({ status: false, msg: error.message })
     }
 }
-module.exports = {post,updatePost,deletePost}
+module.exports = { post, getPost, updatePost, deletePost }

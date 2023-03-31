@@ -1,27 +1,33 @@
 const express = require('express')
-const { comment, updateComment, deleteComment } = require('../controllers/commentController')
-const { post, updatePost, deletePost } = require('../controllers/postController')
-const { user } = require('../controllers/userController')
+const { comment, updateComment, deleteComment, postReplay } = require('../controllers/commentController')
+const { post, updatePost, deletePost, getPost } = require('../controllers/postController')
+const { user, login } = require('../controllers/userController')
 
 const router = express.Router()
 
-router.get("/test_me",function(req,res){
-    console.log("api is working")    
+router.get("/test_me", function (req, res) {
+    console.log("api is working")
 })
 
-router.post("/User",user)
+router.post("/user", user)
 
-router.post("/PostImg",post)
+router.post("/login",login)
 
-router.put("/UpdatePost",updatePost)
+router.post("/postImg", post)
 
-router.delete("/DeletePost",deletePost)
+router.get("/getPost",getPost)
 
-router.post("/PostComment",comment)
+router.put("/updatePost", updatePost)
 
-router.delete("/DeleteComment",deleteComment)
+router.delete("/deletePost", deletePost)
 
-router.put("/UpdateComment",updateComment)
+router.post("/postComment", comment)
+
+router.delete("/deleteComment", deleteComment)
+
+router.put("/updateComment", updateComment)
+
+router.post("/postReplay",postReplay)
 
 
 module.exports = router
