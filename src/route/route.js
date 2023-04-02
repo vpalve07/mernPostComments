@@ -2,6 +2,7 @@ const express = require('express')
 const { comment, updateComment, deleteComment, postReplay } = require('../controllers/commentController')
 const { post, updatePost, deletePost, getPost } = require('../controllers/postController')
 const { user, login } = require('../controllers/userController')
+const { objectIdCheck, validateToken, updateAuth } = require('../middlewares/authorization')
 
 const router = express.Router()
 
@@ -13,21 +14,21 @@ router.post("/user", user)
 
 router.post("/login",login)
 
-router.post("/postImg", post)
+router.post("/postImg", objectIdCheck, validateToken, post)
 
-router.get("/getPost",getPost)
+router.get("/getPost", getPost)
 
-router.put("/updatePost", updatePost)
+router.put("/updatePost", objectIdCheck, validateToken, updateAuth, updatePost)
 
-router.delete("/deletePost", deletePost)
+router.delete("/deletePost", objectIdCheck, validateToken, deletePost)
 
-router.post("/postComment", comment)
+router.post("/postComment", objectIdCheck, validateToken, comment)
 
-router.delete("/deleteComment", deleteComment)
+router.delete("/deleteComment", objectIdCheck, validateToken, deleteComment)
 
-router.put("/updateComment", updateComment)
+router.put("/updateComment", objectIdCheck, validateToken, updateAuth, updateComment)
 
-router.post("/postReplay",postReplay)
+router.post("/postReplay", objectIdCheck, postReplay)
 
 
 module.exports = router

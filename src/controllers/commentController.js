@@ -1,5 +1,6 @@
 const commentModel = require('../models/commentModel')
 const postModel = require('../models/postModel')
+let jwt = require("jsonwebtoken")
 
 const comment = async function (req, res) {
     try {
@@ -10,7 +11,8 @@ const comment = async function (req, res) {
         if(data.replay) return res.status(400).send({status:false,msg:"Cannot post replay on comment before posting comment"})
         let createComment = await commentModel.create(data)
         await postModel.findByIdAndUpdate(data.postId, {$push:{allComment:comment}, $inc: { comments: 1 } }, { new: true })
-        return res.status(201).send({ status: true, data: createComment })
+        // let commentToken = jwt.sign({postId:data.postId.toString()},data.comment)
+        return res.status(201).send({ status: true, data: createComment})
     } catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }
@@ -47,8 +49,15 @@ const deleteComment = async function (req, res) {
     try {
         let data = req.body
         if(!data.commentId) return res.status(400).send({status:false,msg:"commentId is required"})
-        let findComment = await commentModel.findOneAndUpdate({ _id: data.commentId, isDeleted: false }, { isDeleted: true })
-        if (!findComment) return res.status(400).send({ status: false, msg: "Comment not found for Deletion" })
+
+        let findComment = await commentModel.findOne({_id:req.body.commentId})
+        if(req.decode.userId!=findComment.userId.toString()) return res.status(404).send({status:false,msg:"You are not authorized"})
+
+        let findPost = await postModel.findOne({commentId:req.body.commentId})
+        if(req.decode.userId!=findPost.userId.toString()) return res.status(404).send({status:false,msg:"You are not authorized"})
+
+        let deleteComment = await commentModel.findOneAndUpdate({ _id: data.commentId, isDeleted: false }, { isDeleted: true })
+        if (!deleteComment) return res.status(400).send({ status: false, msg: "Comment not found for Deletion" })
         return res.status(200).send({ status: true, msg: "Comment Deleted Successfully" })
     } catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
