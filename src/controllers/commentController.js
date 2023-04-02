@@ -50,11 +50,13 @@ const deleteComment = async function (req, res) {
         let data = req.body
         if(!data.commentId) return res.status(400).send({status:false,msg:"commentId is required"})
 
-        let findComment = await commentModel.findOne({_id:req.body.commentId})
-        if(req.decode.userId!=findComment.userId.toString()) return res.status(404).send({status:false,msg:"You are not authorized"})
+        let findComment = await commentModel.findOne({_id:req.body.commentId,isDeleted:false})
+        let findPost = await postModel.findOne({commentId:req.body.commentId,isDeleted:false})
 
-        let findPost = await postModel.findOne({commentId:req.body.commentId})
-        if(req.decode.userId!=findPost.userId.toString()) return res.status(404).send({status:false,msg:"You are not authorized"})
+        if(req.decode.userId!=findComment.userId.toString()){
+            if(req.decode.userId!=findPost.userId.toString()) return res.status(404).send({status:false,msg:"You are not authorized"})
+        } 
+        // else if(req.decode.userId!=findPost.userId.toString()) return res.status(404).send({status:false,msg:"You are not authorized"})
 
         let deleteComment = await commentModel.findOneAndUpdate({ _id: data.commentId, isDeleted: false }, { isDeleted: true })
         if (!deleteComment) return res.status(400).send({ status: false, msg: "Comment not found for Deletion" })
