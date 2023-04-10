@@ -45,6 +45,7 @@ const updateComment = async function (req, res) {
     }
 }
 //cfghcgcgfhdfghj
+//something check
 const deleteComment = async function (req, res) {
     try {
         let data = req.body
